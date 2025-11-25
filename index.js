@@ -3,10 +3,9 @@ import express from "express";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Parse JSON bodies
 app.use(express.json());
 
-// Basic CORS so your website can call this API
+// CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -20,7 +19,7 @@ app.get("/", (req, res) => {
   res.send("NexChat REALTIME backend is running");
 });
 
-// Ephemeral Realtime Session
+// Realtime session
 app.get("/api/realtime-session", async (req, res) => {
   try {
     const r = await fetch("https://api.openai.com/v1/realtime/sessions", {
@@ -33,9 +32,8 @@ app.get("/api/realtime-session", async (req, res) => {
       body: JSON.stringify({
         model: "gpt-4o-realtime-preview",
         modalities: ["audio", "text"],
-        // 👇 IMPORTANT: match what the browser sends (MediaRecorder → webm/opus)
-        input_audio_format: "webm",
-        output_audio_format: "pcm16",
+        input_audio_format: "pcm16",   // 👈 IMPORTANT
+        output_audio_format: "pcm16",  // 👈 IMPORTANT
         voice: "verse",
         turn_detection: { type: "server_vad" },
       }),
@@ -44,18 +42,14 @@ app.get("/api/realtime-session", async (req, res) => {
     if (!r.ok) {
       const text = await r.text();
       console.error("OpenAI Realtime error:", text);
-      return res
-        .status(r.status)
-        .json({ error: "Failed to create session", details: text });
+      return res.status(r.status).json({ error: "Failed to create session", details: text });
     }
 
     const data = await r.json();
     res.json(data);
   } catch (err) {
     console.error("Ephemeral session error:", err);
-    res
-      .status(500)
-      .json({ error: "Internal error creating realtime session" });
+    res.status(500).json({ error: "Internal error creating realtime session" });
   }
 });
 
