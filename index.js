@@ -1,7 +1,6 @@
-// index.js
-const express = require("express");
-const app = express();
+import express from "express";
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Parse JSON bodies
@@ -9,24 +8,19 @@ app.use(express.json());
 
 // Basic CORS so your website can call this API
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // later lock to your domain
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
 
-// Simple health check
+// Health check
 app.get("/", (req, res) => {
   res.send("NexChat REALTIME backend is running");
 });
 
-/**
- * GET /api/realtime-session
- *
- * Creates a short-lived OpenAI Realtime session (ephemeral client_secret).
- * Frontend uses this to open a WebSocket for live voice calls.
- */
+// Ephemeral Realtime Session
 app.get("/api/realtime-session", async (req, res) => {
   try {
     const r = await fetch("https://api.openai.com/v1/realtime/sessions", {
@@ -37,7 +31,7 @@ app.get("/api/realtime-session", async (req, res) => {
         "OpenAI-Beta": "realtime=v1",
       },
       body: JSON.stringify({
-        model: "gpt-4o-realtime-preview", // or gpt-realtime if your account has it
+        model: "gpt-4o-realtime-preview",
       }),
     });
 
@@ -48,7 +42,6 @@ app.get("/api/realtime-session", async (req, res) => {
     }
 
     const data = await r.json();
-    // data has { id, model, client_secret: { value, expires_at }, ... }
     res.json(data);
   } catch (err) {
     console.error("Ephemeral session error:", err);
