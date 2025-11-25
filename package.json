@@ -1,0 +1,13 @@
+{
+  "name": "nexchat-realtime-backend",
+  "version": "1.0.0",
+  "description": "Realtime proxy for NexChat demo using OpenAI gpt-4o-realtime-preview",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}
